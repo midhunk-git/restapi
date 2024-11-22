@@ -6,13 +6,13 @@ app = Flask(__name__)
 def get_db():
     if 'db' not in g:
         g.db = mysql.connector.connect(
-        host="localhost",
-        user="root",
+        host="host.docker.internal",
+        user="mk",
         password="midhun@2002",
         port = 3306
         )
         with g.db.cursor() as curr:
-            curr.execute("use sys;")
+            curr.execute("use proj;")
         return g.db
     
     else:
@@ -40,7 +40,9 @@ def execute_procedure(proc,*args, has_crud = False):
 @app.route("/api/customer", methods=["GET","POST","DELETE","PUT"])
 def customer_table_apis():
     if request.method == 'GET':
-        data = execute_procedure('GetCustomer')
+        data = request.get_json()
+        c_id = data['customer_id']
+        data = execute_procedure('GetCustomer',c_id)
         if "error_type" not in data:
             return jsonify({"datas":data})
     elif request.method == 'POST':
